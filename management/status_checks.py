@@ -639,6 +639,16 @@ def check_dnssec(domain, env, output, dns_zonefiles, is_checking_primary=False):
 	# several hashing algorithms. We've pre-generated all possible valid DS
 	# records, although some will be preferred.
 
+	# Skip zones whose DNS is hosted elsewhere (External DNS): their DS record, if
+	# any, is for the DNS provider's keys, not the keys this box signs its zone with.
+	# A failed lookup is not proof of External DNS (a broken DS record makes the
+	# NS query fail too), so keep checking in that case.
+	existing_ns = query_dns(domain, "NS")
+	if existing_ns not in {"[Not Set]", "[timeout]"} \
+	  and "ns1." + env["PRIMARY_HOSTNAME"] not in existing_ns.lower().split("; "):
+		output.print_ok(f"DNSSEC for {domain} is not checked because its DNS is hosted elsewhere (External DNS). [{existing_ns}]")
+		return
+
 	alg_name_map = { '7': 'RSASHA1-NSEC3-SHA1', '8': 'RSASHA256', '13': 'ECDSAP256SHA256' }
 	digalg_name_map = { '1': 'SHA-1', '2': 'SHA-256', '4': 'SHA-384' }
 
