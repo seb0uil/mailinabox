@@ -131,6 +131,18 @@ done
 tools/dns_update
 tools/web_update
 
+# Run local customization hooks, after all upstream configuration has been
+# written so they can override it. Hooks are sourced in lexical order from:
+#  * custom/setup.d/ in this repository (versioned customizations),
+#  * $STORAGE_ROOT/custom/setup.d/ (machine-local, kept with user data).
+for hook_dir in custom/setup.d "$STORAGE_ROOT/custom/setup.d"; do
+	for hook in "$hook_dir"/*.sh; do
+		[ -f "$hook" ] || continue
+		echo "Running custom hook $hook..."
+		source "$hook"
+	done
+done
+
 # Give fail2ban another restart. The log files may not all have been present when
 # fail2ban was first configured, but they should exist now.
 restart_service fail2ban
