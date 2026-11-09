@@ -1,0 +1,6 @@
+# Networks denied all inbound traffic by custom/setup.d/50-ufw-blocklist.sh.
+# One IPv4 CIDR per line; text after "#" is ignored. Remove a line to lift
+# the block on the next run of the hooks.
+
+92.118.39.0/24  # distributed SMTP AUTH brute force (Nov 2026)
+45.148.10.0/24  # distributed SMTP AUTH brute force (Nov 2026)
